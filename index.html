@@ -1,0 +1,399 @@
+<!--
+CandyCrush
+Your Name: Justin MacDonald
+Collaborators: Nobody
+-->
+<!DOCTYPE html>
+<html>
+<!--
+/* Copyright (c) 2017 MIT 6.813/6.831 course staff, all rights reserved.
+ * Redistribution of original or derived work requires permission of course staff.
+ */
+-->
+
+<head>
+<meta charset="utf-8">
+<title>CandyCrush</title>
+
+<!-- Load style sheets -->
+<link rel="stylesheet" href=
+  "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.css">
+
+<link rel="stylesheet" href="mainLayout.css">
+
+<!-- Use mobile-aware viewport -->
+<meta name="viewport" content=
+  "width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<!-- Load any supplemental Javascript libraries here -->
+<script src=
+  "https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src=
+  "https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.2/seedrandom.js">
+</script>
+<script src="candy.js"></script>
+<script src="board.js"></script>
+<script src="rules.js"></script>
+
+<script>
+
+// By default, the first board loaded by your page will be the same 
+// each time you load (which is accomplished by "seeding" the random
+// number generator. This makes testing (and grading!) easier!
+Math.seedrandom(0);
+
+
+// A short jQuery extension to read query parameters from the URL.
+$.extend({
+  getUrlVars: function() {
+    var vars = [], pair;
+    var pairs = window.location.search.substr(1).split('&');
+    for (var i = 0; i < pairs.length; i++) {
+      pair = pairs[i].split('=');
+      vars.push(pair[0]);
+      vars[pair[0]] = pair[1] &&
+          decodeURIComponent(pair[1].replace(/\+/g, ' '));
+    }
+    return vars;
+  },
+  getUrlVar: function(name) {
+    return $.getUrlVars()[name];
+  }
+});
+
+// constants
+var DEFAULT_BOARD_SIZE = 8;
+var alphabet = ["a", "b", "c", "d", "e", "f", "g", "h"];
+
+// data model at global scope for easier debugging
+var board;
+var rules;
+// typed output from text box
+var tLetter;
+var tNumber;
+var tCandy;
+
+var rrow;
+var ccol;
+var tSelectedCandy;
+
+// initialize board
+if ($.getUrlVar('size') && $.getUrlVar('size') >= 3) {
+  board = new Board($.getUrlVar('size'));
+} else {
+  board = new Board(DEFAULT_BOARD_SIZE);
+}
+
+// load a rule
+rules = new Rules(board);
+
+//My Functions
+function updateHtmlBoard(){
+  document.getElementById("gameTable").innerHTML = ""; //Init clear HTML
+  var table = document.getElementById('gameTable');
+
+  for(i = 0; i < DEFAULT_BOARD_SIZE; i++)
+  {
+    var row = document.createElement('tr');
+    for(j = 0; j < DEFAULT_BOARD_SIZE; j++)
+    {
+      var col = document.createElement('td'); //EACH CANDY!!!
+      row.appendChild(col);
+      col.innerHTML = (alphabet[j] + (i+1));
+      if(board.square[i][j].color == "yellow")
+        col.style = ("background: " + board.square[i][j].color + ";" + "color: gray;");
+      else
+        col.style = ("background: " + board.square[i][j].color);
+    }
+    table.appendChild(row);
+  }
+  document.body.appendChild(table);
+}
+
+function moveHtmlCandy(){
+    if(rules.isMoveTypeValid(tCandy, selectedArrowDirection)){
+    rrow = board.getLocationOf(board.getCandyInDirection(tCandy, selectedArrowDirection)).row;
+    ccol = board.getLocationOf(board.getCandyInDirection(tCandy, selectedArrowDirection)).col;
+    tSelectedCandy = board.getCandyAt(rrow, ccol);
+    board.flipCandies(tCandy, tSelectedCandy);
+    updateHtmlBoard();
+    selectedArrowDirection == "";
+    tCandy, tNumber, tLetter = null;
+  }
+}
+
+// Final initialization entry point: the Javascript code inside this block
+// runs at the end of start-up when the page has finished loading.
+$(document).ready(function()
+{
+  ///HERE
+  rules.prepareNewGame();
+  updateHtmlBoard();
+});
+
+
+/* Event Handlers */
+// access the candy object with info.candy
+
+// add a candy to the board
+$(board).on('add', function(e, info)
+{
+  // Your code here.
+  
+});
+
+// move a candy on the board
+$(board).on('move', function(e, info)
+{
+  // Your code here.
+});
+
+// remove a candy from the board
+$(board).on('remove', function(e, info)
+{
+  // Your code here.
+});
+
+// move a candy on the board
+$(board).on('scoreUpdate', function(e, info)
+{
+  // Your code here. To be implemented in pset 2.
+});
+
+// Button Events (New Game)
+$(document).on('click', "#btnNewGame", function(evt)
+{
+  console.log("New Game");
+  board.clear();
+  rules.prepareNewGame();
+  updateHtmlBoard();
+});
+
+// Button Events (UP)
+var selectedArrowDirection = ""; //(['up', 'down', 'left', 'right']) are valid directions
+//HTML LightGray
+function resetButtonColor(){
+    document.getElementById("btnUpArrow").style = "height:30px;width:30px;background: HTML LightGray;border-radius:2px;border-width:1px;border-style:solid;"
+    document.getElementById("btnDownArrow").style = "height:30px;width:30px;background: HTML LightGray;border-radius:2px;border-width:1px;border-style:solid;"
+    document.getElementById("btnLeftArrow").style = "height:30px;width:35px;background: HTML LightGray;margin-right: 30px;border-radius:2px;border-width:1px;border-style:solid;"
+    document.getElementById("btnRightArrow").style = "height:30px;width:35px;background: HTML LightGray;border-radius:2px;border-width:1px;border-style:solid;"
+}
+$(document).on('click', "#btnUpArrow", function(evt){
+  resetButtonColor();
+  console.log("UP");
+  selectedArrowDirection = "up";
+  document.getElementById("btnUpArrow").style = "height:30px;width:30px;background: green;border-radius:2px;border-width:1px;border-style:solid;"
+  moveHtmlCandy();
+});
+// Button Events (DOWN)
+$(document).on('click', "#btnDownArrow", function(evt){
+  resetButtonColor();
+  console.log("DOWN");
+  selectedArrowDirection = "down";
+  document.getElementById("btnDownArrow").style = "height:30px;width:30px;background: green;border-radius:2px;border-width:1px;border-style:solid;"
+  moveHtmlCandy();
+});
+// Button Events (LEFT)
+$(document).on('click', "#btnLeftArrow", function(evt){
+  resetButtonColor();
+  console.log("LEFT");
+  selectedArrowDirection = "left";
+  document.getElementById("btnLeftArrow").style = "height:30px;width:35px;background: green;margin-right: 30px;border-radius:2px;border-width:1px;border-style:solid;"
+  moveHtmlCandy();
+});
+// Button Events (RIGHT)
+$(document).on('click', "#btnRightArrow", function(evt){
+  resetButtonColor();
+  console.log("RIGHT");
+  selectedArrowDirection = "right";
+  document.getElementById("btnRightArrow").style = "height:30px;width:35px;background: green;border-radius:2px;border-width:1px;border-style:solid;"
+  moveHtmlCandy();
+});
+
+// Button Events (Crush Once)
+$(document).on('click', "#btnCrush", function(evt)
+{
+  if(selectedArrowDirection != ""){
+    console.log("crush");
+    
+    resetButtonColor();
+    document.getElementById("userMove").value = "  ";
+    document.getElementById("userMove").focus();
+    document.getElementById("userMove").select();
+  
+    document.getElementById("userMove").setAttribute("disabled", ""); 
+    document.getElementById("btnUpArrow").setAttribute("disabled", ""); 
+    document.getElementById("btnDownArrow").setAttribute("disabled", ""); 
+    document.getElementById("btnLeftArrow").setAttribute("disabled", ""); 
+    document.getElementById("btnRightArrow").setAttribute("disabled", ""); 
+  
+    var listCrushes = rules.getCandyCrushes();
+    console.log(listCrushes);
+
+    function tempFunction(){
+      console.log("Remove");
+      rules.removeCrushes(listCrushes);
+      rules.moveCandiesDown();
+      updateHtmlBoard();
+      listCrushes = rules.getCandyCrushes();
+      console.log(listCrushes.length);
+      if(listCrushes.length <= 0){
+        document.getElementById("btnCrush").style = "line-height: 0.5;font-size: 16px;height:28px;margin-top: 10px;background: HTML LightGray;border-radius:2px;border-width:1px;border-style:solid;"
+        document.getElementById("btnCrush").setAttribute("disabled", "");
+        document.getElementById("userMove").removeAttribute("disabled"); //enable
+        selectedArrowDirection = "";
+        document.getElementById("userMove").value = "";
+      }   
+    }
+    setTimeout(tempFunction, 500);
+  }
+});
+
+// keyboard events arrive here
+$(document).on('keydown', function(evt) {
+  // Your code here.
+  // console.log("keydown");
+});
+
+// keyboard events arrive here
+$(document).on('keyup', function(evt) {
+  resetButtonColor(); 
+  //document.getElementById("btnCrush").setAttribute("disabled", ""); // disable CRUSH Button
+  document.getElementById("btnUpArrow").setAttribute("disabled", ""); // disable Button
+  document.getElementById("btnDownArrow").setAttribute("disabled", ""); // disable Button
+  document.getElementById("btnLeftArrow").setAttribute("disabled", ""); // disable Button
+  document.getElementById("btnRightArrow").setAttribute("disabled", ""); // disable Button
+  var typedMove = document.getElementById("userMove").value
+  if(typedMove.length >= 2){
+    tLetter = typedMove.charAt(0);
+    var convertLetterToNumber = true;
+    switch(tLetter){
+      case "a":
+      tLetter = 0;
+      break;
+      case "b":
+      tLetter = 1;
+      break;
+      case "c":
+      tLetter = 2;
+      break;
+      case "d":
+      tLetter = 3;
+      break;
+      case "e":
+      tLetter = 4;
+      break;
+      case "f":
+      tLetter = 5;
+      break;
+      case "g":
+      tLetter = 6;
+      break;
+      case "h":
+      tLetter = 7;
+      break;
+      default:
+      convertLetterToNumber = false;
+    }
+    tNumber = typedMove.charAt(1) - 1;
+    //enable arrow buttons if moves are valid
+    if(convertLetterToNumber && (tNumber >= 0) && (tNumber < DEFAULT_BOARD_SIZE)){
+      console.log(tLetter + " " + tNumber); //Print letter then number as Ints
+      tCandy = board.getCandyAt(tNumber, tLetter); 
+      if(tNumber-1 >= 0 && tNumber-1 < DEFAULT_BOARD_SIZE && rules.isMoveTypeValid(tCandy, "up")){ //UP
+        document.getElementById("btnUpArrow").removeAttribute("disabled"); //enable
+        document.getElementById("btnCrush").removeAttribute("disabled"); //enable
+        document.getElementById("btnCrush").style = "line-height: 0.5;font-size: 16px;height:28px;margin-top: 10px;background: green;border-radius:2px;border-width:1px;border-style:solid;"
+      }
+      if(tNumber+1 >= 0 && tNumber+1 < DEFAULT_BOARD_SIZE && rules.isMoveTypeValid(tCandy, "down")){ //Down
+        document.getElementById("btnDownArrow").removeAttribute("disabled"); //enable
+        document.getElementById("btnCrush").removeAttribute("disabled"); //enable
+        document.getElementById("btnCrush").style = "line-height: 0.5;font-size: 16px;height:28px;margin-top: 10px;background: green;border-radius:2px;border-width:1px;border-style:solid;"
+      }
+      if(tLetter-1 >= 0 && tLetter-1 < DEFAULT_BOARD_SIZE && rules.isMoveTypeValid(tCandy, "left")){ //Left
+        document.getElementById("btnLeftArrow").removeAttribute("disabled"); //enable
+        document.getElementById("btnCrush").removeAttribute("disabled"); //enable
+        document.getElementById("btnCrush").style = "line-height: 0.5;font-size: 16px;height:28px;margin-top: 10px;background: green;border-radius:2px;border-width:1px;border-style:solid;"
+      }
+      if(tLetter+1 >= 0 && tLetter+1 < DEFAULT_BOARD_SIZE && rules.isMoveTypeValid(tCandy, "right")){ //Right
+        document.getElementById("btnRightArrow").removeAttribute("disabled"); //enable
+        document.getElementById("btnCrush").removeAttribute("disabled"); //enable
+        document.getElementById("btnCrush").style = "line-height: 0.5;font-size: 16px;height:28px;margin-top: 10px;background: green;border-radius:2px;border-width:1px;border-style:solid;"
+      }
+    }
+  }else{
+    //console.log("ELSE");
+    selectedArrowDirection = "";
+    tLetter, tNumber = null;
+  }
+  
+});
+  
+
+</script>
+</head>
+<body>
+<style>
+.firstBox{
+  margin: 0;
+  position: absolute;
+  text-align: center;
+  top: 100%;
+  left: 50%;
+}
+.lastBox{
+  font-size: 20px;
+  line-height: 0.7;
+  text-align: center;
+  margin: 0;
+  position: absolute;
+  top: 100%;
+  left: 15%;
+}
+</style>
+.
+<div class="container">
+  <div class="row">
+    <div class="col-md-4" id="firstColumn">
+      <div class="firstBox">
+      <!-- Column 1 Code Here -->
+        <div style="height:100px";></div>
+        <div id= "gameTitle";>Candy</div>
+        <div id= "gameTitle" style="font-size: 27px;line-height: 0.8;">Crush</div>
+        <button id="btnNewGame" style="margin-top:20px;">New Game</button>
+      </div>
+  </div>
+
+    <div class="col-md-4" id="mainColumn">
+
+      <!-- Column 2 Code Here -->
+      <table id="gameTable">
+
+      </table>
+
+    </div>
+
+    <div class="col-md-4" id="lastColumn">
+      <div class="lastBox">
+        <!-- Column 3 Code Here -->
+        <div style="height:50px";></div>
+          <label for="lableMove" style="font-weight: bold">Move:</label>
+          <input type="text" id="userMove" name="userMove"
+           maxlength="2" size="2" style="font-size: 18px"><br><br>
+          <div>
+            <button id="btnUpArrow"; style="height:30px;width:30px" disabled>&#8593;</button>
+            <div style="padding: 5px 5px">
+              <button id="btnLeftArrow"; style="height:30px;width:35px; margin-right: 30px" disabled>&#8592;</button>
+              <button id="btnRightArrow"; style="height:30px;width:35px" disabled>&#8594;</button>
+            </div>
+            <button id="btnDownArrow"; style="height:30px;width:30px" disabled>&#8595;</button> 
+          </div>
+          <button id="btnCrush"; style="line-height: 0.5;font-size: 16px;height:28px;margin-top: 10px;" disabled>Crush Once</button>
+      </div>
+    </div>
+  </div> <!-- class="row" -->
+</div> <!-- class="container" -->
+
+</body>
+
+</html>

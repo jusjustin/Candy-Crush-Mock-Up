@@ -1,0 +1,43 @@
+/* Copyright (c) 2017 MIT 6.813/6.831 course staff, all rights reserved.
+ * Redistribution of original or derived work requires permission of course staff.
+ */
+
+/* Your css code here! */
+
+/*111111111111111111111111111111111111111111111111*/
+#firstColumn{
+/*  outline: 1px dashed orange;
+  height: 200px;	*/
+}
+
+#gameTitle{
+	color: red;
+	font-weight: bold;
+	font-size: 30px;
+}
+
+/*2222222222222222222222222222222222222222222222222*/
+#mainColumn {
+/*  outline: 1px dashed orange;
+  height: 200px;*/
+}
+
+table,
+tr,
+td{
+	/*margin: 1%;*/
+	color: white;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	font-size: 20px;
+	border: 2px solid white;
+	border-collapse: collapse;
+	column-width: 48px;
+	height: 48px;
+}
+/*333333333333333333333333333333333333333333333333*/
+#lastColumn{
+  /*outline: 1px dashed orange;*/
+  height: 125px;	
+}
